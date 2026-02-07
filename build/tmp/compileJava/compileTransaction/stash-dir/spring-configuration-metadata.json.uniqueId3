@@ -1,0 +1,63 @@
+{
+  "groups": [
+    {
+      "name": "excel",
+      "type": "com.passport.ocr.config.ExcelProperties",
+      "sourceType": "com.passport.ocr.config.ExcelProperties"
+    },
+    {
+      "name": "ocr",
+      "type": "com.passport.ocr.config.OcrProperties",
+      "sourceType": "com.passport.ocr.config.OcrProperties"
+    },
+    {
+      "name": "ocr.worker",
+      "type": "com.passport.ocr.config.OcrProperties$Worker",
+      "sourceType": "com.passport.ocr.config.OcrProperties",
+      "sourceMethod": "getWorker()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "excel.columns",
+      "type": "java.util.List<com.passport.ocr.config.ExcelProperties$Column>",
+      "sourceType": "com.passport.ocr.config.ExcelProperties"
+    },
+    {
+      "name": "ocr.max-images",
+      "type": "java.lang.Integer",
+      "sourceType": "com.passport.ocr.config.OcrProperties"
+    },
+    {
+      "name": "ocr.timeout-seconds",
+      "type": "java.lang.Integer",
+      "sourceType": "com.passport.ocr.config.OcrProperties"
+    },
+    {
+      "name": "ocr.worker.max-side",
+      "type": "java.lang.Integer",
+      "sourceType": "com.passport.ocr.config.OcrProperties$Worker"
+    },
+    {
+      "name": "ocr.worker.model-dir",
+      "type": "java.lang.String",
+      "sourceType": "com.passport.ocr.config.OcrProperties$Worker"
+    },
+    {
+      "name": "ocr.worker.python",
+      "type": "java.lang.String",
+      "sourceType": "com.passport.ocr.config.OcrProperties$Worker"
+    },
+    {
+      "name": "ocr.worker.script",
+      "type": "java.lang.String",
+      "sourceType": "com.passport.ocr.config.OcrProperties$Worker"
+    },
+    {
+      "name": "ocr.worker.temp-dir",
+      "type": "java.lang.String",
+      "sourceType": "com.passport.ocr.config.OcrProperties$Worker"
+    }
+  ],
+  "hints": []
+}

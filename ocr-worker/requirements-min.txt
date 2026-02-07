@@ -1,0 +1,17 @@
+paddlepaddle==2.6.2
+opencv-contrib-python==4.6.0.66
+numpy<2
+pyclipper
+shapely
+Pillow>=10.0.0
+pyyaml
+rapidfuzz
+tqdm
+imgaug
+lmdb
+fire
+attrdict
+beautifulsoup4
+openpyxl
+premailer
+visualdl

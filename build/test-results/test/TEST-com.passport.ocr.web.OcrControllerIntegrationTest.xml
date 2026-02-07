@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.passport.ocr.web.OcrControllerIntegrationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-02-07T12:25:11" hostname="bellui-MacBookPro.local" time="1.012">
+  <properties/>
+  <testcase name="previewEndpointReturnsJson()" classname="com.passport.ocr.web.OcrControllerIntegrationTest" time="1.012"/>
+  <system-out><![CDATA[21:25:10.381 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.passport.ocr.web.OcrControllerIntegrationTest]: OcrControllerIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+21:25:10.438 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.passport.ocr.PassportOcrApplication for test class com.passport.ocr.web.OcrControllerIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-02-07T21:25:10.606+09:00  INFO 49370 --- [    Test worker] c.p.o.web.OcrControllerIntegrationTest   : Starting OcrControllerIntegrationTest using Java 17.0.16 with PID 49370 (started by bell in /Users/bell/develop/passport)
+2026-02-07T21:25:10.607+09:00  INFO 49370 --- [    Test worker] c.p.o.web.OcrControllerIntegrationTest   : No active profile set, falling back to 1 default profile: "default"
+2026-02-07T21:25:11.084+09:00  INFO 49370 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-02-07T21:25:11.084+09:00  INFO 49370 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-02-07T21:25:11.085+09:00  INFO 49370 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-02-07T21:25:11.100+09:00  INFO 49370 --- [    Test worker] c.p.o.web.OcrControllerIntegrationTest   : Started OcrControllerIntegrationTest in 0.604 seconds (process running for 1.184)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

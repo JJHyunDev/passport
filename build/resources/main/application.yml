@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 200MB
+
+ocr:
+  mode: paddle
+  max-images: 50
+  timeout-seconds: 180
+  worker:
+    python: python3
+    script: ocr-worker/paddle_ocr_worker.py
+    temp-dir: ""
+    max-side: 2000
+    model-dir: "ocr-models/paddle"
+
+excel:
+  columns:
+    - key: passportNo
+      label: Passport No
+    - key: name
+      label: Name
+    - key: nationality
+      label: Nationality
+    - key: dateOfBirth
+      label: Date of Birth
+    - key: sex
+      label: Sex
+    - key: dateOfIssue
+      label: Date of Issue
+    - key: dateOfExpiry
+      label: Date of Expiry
+    - key: issuingCountry
+      label: Issuing Country
+    - key: mrzRaw
+      label: MRZ Raw
+    - key: error
+      label: Error

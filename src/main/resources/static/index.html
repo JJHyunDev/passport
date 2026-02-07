@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Passport OCR → Excel</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --ink: #1f1f1f;
+      --muted: #6b5f50;
+      --accent: #2f6f5e;
+      --accent-2: #e1b261;
+      --card: #fff9f0;
+      --border: #d8c6aa;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top right, #fbe6c4, transparent 55%),
+                  linear-gradient(135deg, #efe5d3, #f6efe4 55%, #eee2d2);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 3vw, 3rem);
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      background: #fffdf8;
+    }
+
+    .upload-area input {
+      display: none;
+    }
+
+    .upload-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .upload-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(47, 111, 94, 0.25);
+    }
+
+    .file-meta {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .actions button {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .actions button.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .actions button.secondary {
+      background: transparent;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .actions button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 16px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .progress {
+      margin-top: 16px;
+      height: 8px;
+      background: #efe2cf;
+      border-radius: 999px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.3s ease;
+    }
+
+    .file-list {
+      margin-top: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .file-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #eadcc4;
+      font-size: 0.95rem;
+    }
+
+    .file-size {
+      color: var(--muted);
+    }
+
+    .results {
+      margin-top: 28px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e6d8c2;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+      background: #fff8ed;
+    }
+
+    tr.row-error {
+      background: #fff1f1;
+    }
+
+    .note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 680px) {
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .file-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Passport OCR → Excel</h1>
+      <div class="subtitle">
+        Upload up to 50 passport images, extract MRZ data locally, and export the results to Excel.
+        Nothing is stored on the server.
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="upload-area">
+        <label class="upload-button" for="fileInput">Select Passport Images</label>
+        <input id="fileInput" type="file" accept="image/*" multiple />
+        <div class="file-meta" id="fileMeta">No files selected.</div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" id="previewButton" disabled>Preview</button>
+        <button class="primary" id="downloadButton" disabled>Download Excel</button>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div class="progress" id="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+
+      <div class="results" id="results"></div>
+      <div class="note">MRZ parsing focuses on TD3 passports. For other document types, additional handling may be needed.</div>
+    </section>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileMeta = document.getElementById('fileMeta');
+    const fileList = document.getElementById('fileList');
+    const previewButton = document.getElementById('previewButton');
+    const downloadButton = document.getElementById('downloadButton');
+    const status = document.getElementById('status');
+    const results = document.getElementById('results');
+    const progress = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
+    }
+
+    function setStatus(message) {
+      status.textContent = message;
+    }
+
+    function setProgress(percent) {
+      if (percent == null) {
+        progress.style.display = 'none';
+        progressBar.style.width = '0%';
+        return;
+      }
+      progress.style.display = 'block';
+      progressBar.style.width = `${percent}%`;
+    }
+
+    function updateFileList(files) {
+      fileList.innerHTML = '';
+      if (!files.length) {
+        fileMeta.textContent = 'No files selected.';
+        previewButton.disabled = true;
+        downloadButton.disabled = true;
+        return;
+      }
+
+      fileMeta.textContent = `${files.length} file(s) selected`;
+      previewButton.disabled = false;
+      downloadButton.disabled = false;
+
+      Array.from(files).forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML = `<div>${file.name}</div><div class="file-size">${formatBytes(file.size)}</div>`;
+        fileList.appendChild(card);
+      });
+    }
+
+    function buildFormData() {
+      const data = new FormData();
+      Array.from(fileInput.files).forEach(file => data.append('images', file));
+      return data;
+    }
+
+    async function preview() {
+      if (!fileInput.files.length) return;
+      results.innerHTML = '';
+      setStatus('Uploading images...');
+      setProgress(20);
+      previewButton.disabled = true;
+      downloadButton.disabled = true;
+
+      try {
+        const response = await fetch('/api/ocr/preview', {
+          method: 'POST',
+          body: buildFormData()
+        });
+        if (!response.ok) {
+          throw new Error(`Preview failed (${response.status})`);
+        }
+        setStatus('Processing OCR...');
+        setProgress(60);
+        const data = await response.json();
+        renderPreview(data);
+        setProgress(100);
+        setStatus('Preview complete.');
+      } catch (err) {
+        setStatus(err.message);
+      } finally {
+        setTimeout(() => setProgress(null), 600);
+        previewButton.disabled = false;
+        downloadButton.disabled = false;
+      }
+    }
+
+    function renderPreview(data) {
+      if (!data || !data.columns) {
+        results.textContent = 'No preview data available.';
+        return;
+      }
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      data.columns.forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col.label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      (data.records || []).forEach(record => {
+        const row = document.createElement('tr');
+        if (record.error) {
+          row.classList.add('row-error');
+        }
+        data.columns.forEach(col => {
+          const td = document.createElement('td');
+          td.textContent = record[col.key] || '';
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      results.innerHTML = '';
+      results.appendChild(table);
+    }
+
+    async function downloadExcel() {
+      if (!fileInput.files.length) return;
+      setStatus('Uploading images...');
+      setProgress(20);
+      previewButton.disabled = true;
+      downloadButton.disabled = true;
+
+      try {
+        const response = await fetch('/api/ocr/export', {
+          method: 'POST',
+          body: buildFormData()
+        });
+        if (!response.ok) {
+          throw new Error(`Export failed (${response.status})`);
+        }
+        setStatus('Generating Excel...');
+        setProgress(80);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'passport_export.xlsx';
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(url);
+        setProgress(100);
+        setStatus('Excel downloaded.');
+      } catch (err) {
+        setStatus(err.message);
+      } finally {
+        setTimeout(() => setProgress(null), 600);
+        previewButton.disabled = false;
+        downloadButton.disabled = false;
+      }
+    }
+
+    fileInput.addEventListener('change', () => {
+      const files = fileInput.files;
+      if (files.length > 50) {
+        setStatus('Maximum 50 images allowed.');
+        fileInput.value = '';
+        updateFileList([]);
+        return;
+      }
+      setStatus('');
+      updateFileList(files);
+    });
+
+    previewButton.addEventListener('click', preview);
+    downloadButton.addEventListener('click', downloadExcel);
+  </script>
+</body>
+</html>
