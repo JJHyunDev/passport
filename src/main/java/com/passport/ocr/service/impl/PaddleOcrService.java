@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.system.ApplicationHome;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -140,7 +141,7 @@ public class PaddleOcrService implements OcrService {
 
     Path scriptPath = resolveWorkerScript();
     ProcessBuilder builder = new ProcessBuilder(
-        ocrProperties.getWorker().getPython(),
+        resolvePythonCommand(),
         scriptPath.toString()
     );
     builder.redirectErrorStream(true);
@@ -176,7 +177,7 @@ public class PaddleOcrService implements OcrService {
   private Path resolveWorkerScript() {
     Path script = Paths.get(ocrProperties.getWorker().getScript());
     if (!script.isAbsolute()) {
-      return Paths.get(System.getProperty("user.dir")).resolve(script).normalize();
+      return resolveBaseDir().resolve(script).normalize();
     }
     return script;
   }
@@ -198,11 +199,34 @@ public class PaddleOcrService implements OcrService {
     if (configured != null && !configured.isBlank()) {
       Path dir = Paths.get(configured);
       if (!dir.isAbsolute()) {
-        return Paths.get(System.getProperty("user.dir")).resolve(dir).normalize();
+        return resolveBaseDir().resolve(dir).normalize();
       }
       return dir;
     }
     return resolveTempDir().resolve("paddleocr");
+  }
+
+  private String resolvePythonCommand() {
+    String python = ocrProperties.getWorker().getPython();
+    if (python == null || python.isBlank()) {
+      return "python";
+    }
+    Path candidate = Paths.get(python);
+    if (!candidate.isAbsolute()) {
+      Path resolved = resolveBaseDir().resolve(candidate).normalize();
+      if (Files.exists(resolved)) {
+        return resolved.toString();
+      }
+    }
+    return python;
+  }
+
+  private Path resolveBaseDir() {
+    ApplicationHome home = new ApplicationHome(PaddleOcrService.class);
+    if (home.getDir() != null) {
+      return home.getDir().toPath();
+    }
+    return Paths.get(System.getProperty("user.dir"));
   }
 
   private String readAll(InputStream inputStream) throws IOException {

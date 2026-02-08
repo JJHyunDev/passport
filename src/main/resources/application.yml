@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+app:
+  auto-open-browser: true
+  ui-url: ""
+
 spring:
   servlet:
     multipart:

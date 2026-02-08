@@ -17,15 +17,38 @@ if (-not $JarPath) {
 $DistDir = "dist"
 New-Item -ItemType Directory -Force -Path $DistDir | Out-Null
 
-Write-Host "== Copy OCR worker files =="
-Copy-Item -Recurse -Force "ocr-worker" "$DistDir/ocr-worker"
-Copy-Item -Force "src/main/resources/application.yml" "$DistDir/application.yml"
+$StageDir = Join-Path $DistDir "app-input"
+if (Test-Path $StageDir) {
+  Remove-Item -Recurse -Force $StageDir
+}
+New-Item -ItemType Directory -Force -Path $StageDir | Out-Null
+
+Write-Host "== Stage application files =="
+Copy-Item -Force $JarPath.FullName $StageDir
+Copy-Item -Force "src/main/resources/application.yml" "$StageDir/application.yml"
+
+Write-Host "== Stage OCR worker files =="
+Copy-Item -Recurse -Force "ocr-worker" "$StageDir/ocr-worker"
 
 if (Test-Path "ocr-models") {
-  Write-Host "== Copy OCR models =="
-  Copy-Item -Recurse -Force "ocr-models" "$DistDir/ocr-models"
+  Write-Host "== Stage OCR models =="
+  Copy-Item -Recurse -Force "ocr-models" "$StageDir/ocr-models"
 } else {
   Write-Host "== OCR models not found (skip) =="
+}
+
+if (Test-Path "python") {
+  Write-Host "== Stage Python runtime =="
+  Copy-Item -Recurse -Force "python" "$StageDir/python"
+} else {
+  Write-Host "== Python runtime not found (skip) =="
+}
+
+if (Test-Path "$StageDir/application.yml" -and (Test-Path "$StageDir/python")) {
+  Write-Host "== Update Python path in application.yml =="
+  (Get-Content "$StageDir/application.yml") |
+    ForEach-Object { $_ -replace '^(\\s*python:\\s*).*$', '$1 python\\python.exe' } |
+    Set-Content "$StageDir/application.yml"
 }
 
 Write-Host "== Package EXE =="
@@ -39,7 +62,7 @@ $arguments = @(
   "--dest", $DistDir,
   "--name", $AppName,
   "--app-version", $AppVersion,
-  "--input", "build/libs",
+  "--input", $StageDir,
   "--main-jar", $JarPath.Name,
   "--resource-dir", $DistDir,
   "--java-options", "-Dspring.config.additional-location=./application.yml"
