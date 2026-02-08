@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import inspect
 from typing import Any, Dict, List
 
 
@@ -60,7 +61,13 @@ def main() -> None:
     images = payload.get("images", [])
     max_side = payload.get("max_side", 2000)
 
-    ocr = PaddleOCR(use_angle_cls=True, lang="en", show_log=False)
+    init_params = set(inspect.signature(PaddleOCR.__init__).parameters.keys())
+    kwargs: Dict[str, Any] = {"lang": "en"}
+    if "use_textline_orientation" in init_params:
+        kwargs["use_textline_orientation"] = True
+    elif "use_angle_cls" in init_params:
+        kwargs["use_angle_cls"] = True
+    ocr = PaddleOCR(**kwargs)
 
     results: List[Dict[str, Any]] = []
     for item in images:
@@ -80,7 +87,10 @@ def main() -> None:
                 if longest > max_side:
                     scale = max_side / float(longest)
                     img = cv2.resize(img, (int(w * scale), int(h * scale)))
-            ocr_result = ocr.ocr(img, cls=True)
+            try:
+                ocr_result = ocr.ocr(img)
+            except TypeError:
+                ocr_result = ocr.ocr(img, cls=True)
             lines = _normalize_result(ocr_result)
             results.append({"id": image_id, "lines": lines, "error": ""})
         except Exception as exc:

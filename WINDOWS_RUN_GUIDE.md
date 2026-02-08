@@ -24,7 +24,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-python-runtime.ps1
 모델은 오프라인 실행을 위해 미리 받아둡니다.
 
 ```powershell
-.\python\python.exe ocr-worker\download_models.py --model-dir ocr-models
+.\python\python.exe ocr-worker\download_models.py --model-dir ocr-models --disable-source-check
 ```
 
 다운로드 경로:

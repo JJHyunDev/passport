@@ -44,10 +44,10 @@ if (Test-Path "python") {
   Write-Host "== Python runtime not found (skip) =="
 }
 
-if (Test-Path "$StageDir/application.yml" -and (Test-Path "$StageDir/python")) {
+if ((Test-Path "$StageDir/application.yml") -and (Test-Path "$StageDir/python")) {
   Write-Host "== Update Python path in application.yml =="
   (Get-Content "$StageDir/application.yml") |
-    ForEach-Object { $_ -replace '^(\\s*python:\\s*).*$', '$1 python\\python.exe' } |
+    ForEach-Object { $_ -replace '^(\s*python:\s*).*$', '$1python\python.exe' } |
     Set-Content "$StageDir/application.yml"
 }
 

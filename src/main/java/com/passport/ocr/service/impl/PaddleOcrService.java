@@ -188,6 +188,7 @@ public class PaddleOcrService implements OcrService {
     ensureDirectory(modelDir);
     env.put("PADDLEOCR_HOME", modelDir.toString());
     env.put("PADDLE_DOWNLOAD_HOME", modelDir.toString());
+    env.put("DISABLE_MODEL_SOURCE_CHECK", "True");
 
     Path mplDir = resolveTempDir().resolve("matplotlib");
     ensureDirectory(mplDir);
