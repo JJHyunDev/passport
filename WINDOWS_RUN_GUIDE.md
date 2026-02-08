@@ -5,16 +5,15 @@
 - 로컬에서 OCR → Excel 다운로드까지 검증
 
 ## 사전 준비
-- Windows 10/11
+- Windows 10/11 (x64)
 - JDK 17 또는 21 설치 (예: Corretto/Temurin)
-- Python 3.9+ 설치
+- Python 3.8~3.12 (64-bit)
 
 ## 1) Python 의존성 설치
 PowerShell에서 프로젝트 루트 기준:
 
 ```powershell
 python -m pip install -r ocr-worker\requirements-min.txt
-python -m pip install paddleocr==2.7.0.3 --no-deps
 ```
 
 ## 2) OCR 모델 다운로드 (1회)
